@@ -4,13 +4,14 @@ from pygame.locals import (
 )
 import pygame
 import random
+from modules.state import State, SuperpositionState
 
 ENEMY_MAX_SPEED = 3
 ENEMY_MIN_SPEED = 1
 ENEMY_COLOR = (255, 255, 255)
 
 class Enemy(pygame.sprite.Sprite):
-    def __init__(self, screen_width, screen_height, in_superposition, enemy_min_speed = ENEMY_MIN_SPEED, enemy_max_speed = ENEMY_MAX_SPEED, color= ENEMY_COLOR):
+    def __init__(self, screen_width, screen_height, state, enemy_min_speed = ENEMY_MIN_SPEED, enemy_max_speed = ENEMY_MAX_SPEED, color= ENEMY_COLOR):
         super(Enemy, self).__init__()
         self.surf = pygame.Surface((20, 10))
         self.surf.fill(color)
@@ -20,19 +21,20 @@ class Enemy(pygame.sprite.Sprite):
                 random.randint(0, screen_height),
             )
         )
-        if in_superposition:
-            self.speed = random.randint(2,4) * enemy_min_speed
-        else:
-            self.speed = random.randint(2,4) * enemy_max_speed
 
-        self.original_speed = self.speed
-        self.in_superposition = in_superposition
-        self.min_speed = enemy_min_speed
-        self.max_speed = enemy_max_speed
+        self.min_speed = random.randint(2,4) * enemy_min_speed
+        self.max_speed = random.randint(2,4) * enemy_max_speed
+
+        self.state = state
+        if state.superposition_state == SuperpositionState.SUPERPOSITION:
+            self.speed = self.min_speed
+        else:
+            self.speed = self.max_speed
+
         self.screen_height = screen_height
 
     def update(self, pressed_keys):
-        if not self.in_superposition:
+        if not self.state.superposition_state == SuperpositionState.SUPERPOSITION:
             self.rect.move_ip(-self.speed, 0)
             pass
         else:
@@ -43,14 +45,14 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.move_ip(0, self.speed)
             # Keep player on the screen
             if self.rect.top <= 0:
-                self.rect.y = self.screen_height - 1
+                self.rect.y = self.screen_height - self.rect.height
             elif self.rect.bottom >= self.screen_height:
                 self.rect.y = 0
         if self.rect.right < 0:
             self.kill()
 
     def enter_superposition(self):
-        self.speed = random.randint(2,4) * self.min_speed
+        self.speed = self.min_speed
 
     def exit_superposition(self):
-        self.speed = random.randint(2,4) * self.original_speed
+        self.speed = self.max_speed

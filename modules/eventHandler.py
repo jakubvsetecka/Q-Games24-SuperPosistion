@@ -1,7 +1,9 @@
+import copy
 from modules.enemy import Enemy
 from modules.player import Player
 from modules.state import State, SuperpositionState
 import pygame
+import time
 
 ADDENEMY = pygame.USEREVENT + 1
 NOT = pygame.USEREVENT + 2
@@ -24,7 +26,7 @@ class AddEnemyEvent(Event):
         self.state = state
 
     def handle(self):
-        new_enemy = Enemy(self.screen_width, self.screen_height, in_superposition= self.state.superposition_state == SuperpositionState.SUPERPOSITION)
+        new_enemy = Enemy(self.screen_width, self.screen_height, state= self.state)
         self.enemies.add(new_enemy)
 
 class NotEvent(Event):
@@ -38,22 +40,36 @@ class NotEvent(Event):
             self.player.flip()
 
 class HadamardEvent(Event):
-    def __init__(self, players, enemies, in_superposition):
+    def __init__(self, players, enemies, state):
         super().__init__("HADAMARD")
         self.players = players
         self.enemies = enemies
-        self.in_superposition = in_superposition
+        self.state = state
 
     def handle(self):
-        if self.in_superposition:
-            players.remove(twin)
-            twin.kill()
+        if self.state.superposition_state == SuperpositionState.SUPERPOSITION:
+            self.state.superposition_state = SuperpositionState.NO_SUPERPOSITION
+        else:
+            self.state.superposition_state = SuperpositionState.SUPERPOSITION
 
+        if self.state.superposition_state == SuperpositionState.NO_SUPERPOSITION:
             for enemy in self.enemies:
                 enemy.exit_superposition()
 
             for player in self.players:
                 player.exit_superposition()
+        else:                                   # Going into superposition
+            new_player = self.players.sprites()[0]
+            new_player = copy.copy(self.players.sprites()[0])
+            new_player.flip()
+            self.players.add(new_player)
+
+            for player in self.players:
+                player.enter_superposition()
+
+            for enemy in self.enemies:
+                enemy.enter_superposition()
+
 
 class PlayerEnemyCollisionEvent(Event):
     def __init__(self, player, enemies, state):
@@ -69,6 +85,7 @@ class PlayerEnemyCollisionEvent(Event):
         else:
             for enemy in self.enemies:
                 enemy.kill()
+            time.sleep(1)
 
 
 class EventHandler:
@@ -108,8 +125,7 @@ class EventHandler:
                 event = NotEvent(self.players.sprites()[0], in_superposition)
             elif e.type == HADAMARD:
                 print("HADAMARD")
-                in_superposition = any(p.in_superposition for p in self.players)  # Assuming superposition property
-                event = HadamardEvent(self.players, self.enemies, in_superposition)
+                event = HadamardEvent(self.players, self.enemies, self.state)
             elif e.type == PLAYER_ENEMY_COLLISION:
                 print("PLAYER_ENEMY_COLLISION")
                 event = PlayerEnemyCollisionEvent(self.players, self.enemies, self.state)

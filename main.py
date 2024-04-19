@@ -34,7 +34,7 @@ def main():
 
     # Set players
     players = pygame.sprite.Group()
-    player = Player(0, 0, screen.top, screen.half_height, screen.left, screen.right, PLAYER_COLOR, INITIAL_PLAYER_SPEED)
+    player = Player(0, 0, screen.top, screen.half_height, screen.left, screen.right, state, PLAYER_COLOR, INITIAL_PLAYER_SPEED)
     players.add(player)
 
     # Set enemies

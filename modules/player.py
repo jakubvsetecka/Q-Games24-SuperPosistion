@@ -9,9 +9,10 @@ from pygame.locals import (
     K_s
 )
 import pygame
+from modules.state import SuperpositionState
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, initial_x, initial_y, tB, bB, lB, rB, color = (255, 255, 255), speed = 5, original = True):
+    def __init__(self, initial_x, initial_y, tB, bB, lB, rB, state, color = (255, 255, 255), speed = 5, original = True):
         super(Player, self).__init__()
         self.surf = pygame.Surface((75, 25))
         self.surf.fill(color)
@@ -28,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = speed
         self.original_speed = speed
 
-        self.in_superposition = False
+        self.state = state
         self.original = original
 
     def update(self, pressed_keys): # we move the rectangular with (x,y)
@@ -52,8 +53,15 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= self.bottomBoundary:
             self.rect.bottom = self.bottomBoundary
 
-    def destroy(self):
-        self.kill()
+    def flip(self):
+        if self.topBoundary == 0:
+            self.rect.y = self.rect.y + self.bottomBoundary
+            self.topBoundary = self.bottomBoundary
+            self.bottomBoundary = self.bottomBoundary * 2
+        else:
+            self.rect.y = self.rect.y - self.topBoundary
+            self.topBoundary = 0
+            self.bottomBoundary = self.bottomBoundary // 2
 
     def enter_superposition(self):
         self.speed = 0
@@ -62,7 +70,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.original_speed
 
     def flip(self):
-        if not self.in_superposition:
+        if not self.state.superposition_state == SuperpositionState.SUPERPOSITION:
             if self.topBoundary == 0:
                 self.rect.y = self.rect.y + self.bottomBoundary
                 self.topBoundary = self.bottomBoundary
