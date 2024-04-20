@@ -1,4 +1,5 @@
 import copy
+import random
 from modules.enemy import Enemy
 from modules.player import Player
 from modules.state import State, SuperpositionState
@@ -75,20 +76,36 @@ class HadamardEvent(Event):
 
 
 class PlayerEnemyCollisionEvent(Event):
-    def __init__(self, player, enemies, state):
+    def __init__(self, players, enemies, state):
         super().__init__("PLAYER_ENEMY_COLLISION")
-        self.player = player
+        self.players = players
         self.enemies = enemies
         self.state = state
 
+    def handleSuperposition(self):
+        assert len(self.players) == 2
+        true_player = self.players.sprites()[random.randint(0, len(self.players) - 1)]
+        true_player.original = True
+        true_player.exit_superposition()
+
+        for player in self.players:
+            if player != true_player:
+                player.kill()
+                self.players.remove(player)
+
+        self.state.superposition_state = SuperpositionState.NO_SUPERPOSITION
+
     def handle(self):
-        self.state.lives -= 1
-        if self.state.lives == 0:
-            self.state.game_over = True
+        if self.state.superposition_state == SuperpositionState.SUPERPOSITION:
+            self.handleSuperposition()
         else:
-            for enemy in self.enemies:
-                enemy.kill()
-            time.sleep(1)
+            self.state.lives -= 1
+            if self.state.lives == 0:
+                self.state.game_over = True
+            else:
+                time.sleep(1)
+                for enemy in self.enemies:
+                    enemy.kill()
 
 
 class EventHandler:

@@ -22,7 +22,7 @@ PLAYER_COLOR = (255, 255, 255) # white color
 BACKGROUND_COLOR=(255, 182, 193) # pink color
 
 CREATING_ENEMY_TIME_INTERVAL = 250 # later we can set it to different values if we wish
-NOT_TIME_INTERVAL = random.randint(500, 1000) * 10
+NOT_TIME_INTERVAL = random.randint(500, 1000) * 100000
 HADAMARD_TIME_INTERVAL = random.randint(500, 1000) * 3
 
 #===================================================================================================
@@ -58,7 +58,7 @@ def main():
     while running:
 
         eventHandler.handle_events()
-        all_sprites.add(*enemies, *players)
+        all_sprites.add(*enemies, players)
 
         screen.fill()
 
@@ -68,13 +68,12 @@ def main():
         all_sprites.update(pressed_keys)
 
         # Collision detection
-        if pygame.sprite.spritecollideany(player, enemies):
-            pygame.event.post(pygame.event.Event(PLAYER_ENEMY_COLLISION))
+        for player in players:
+            if pygame.sprite.spritecollideany(player, enemies):
+                pygame.event.post(pygame.event.Event(PLAYER_ENEMY_COLLISION))
 
         for entity in all_sprites:
-            if entity == screen:
-                pass
-            else:
+            if entity != screen:
                 screen.blit(entity)
 
         pygame.display.flip()
