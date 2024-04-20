@@ -1,6 +1,8 @@
 from pygame.locals import (
     K_UP,
-    K_DOWN
+    K_DOWN,
+    K_w,
+    K_s
 )
 import pygame
 import random
@@ -39,9 +41,9 @@ class Enemy(pygame.sprite.Sprite):
             pass
         else:
             self.rect.move_ip(-self.speed, 0)
-            if pressed_keys[K_UP]:
+            if pressed_keys[K_UP] or pressed_keys[K_w]:
                 self.rect.move_ip(0, -self.speed)
-            if pressed_keys[K_DOWN]:
+            if pressed_keys[K_DOWN] or pressed_keys[K_s]:
                 self.rect.move_ip(0, self.speed)
             # Keep player on the screen
             if self.rect.top <= 0:
