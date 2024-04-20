@@ -10,6 +10,7 @@ ADDENEMY = pygame.USEREVENT + 1
 NOT = pygame.USEREVENT + 2
 HADAMARD = pygame.USEREVENT + 3
 PLAYER_ENEMY_COLLISION = pygame.USEREVENT + 4
+GAME_OVER = pygame.USEREVENT + 5
 
 class Event:
     def __init__(self, event_type):
@@ -107,6 +108,22 @@ class PlayerEnemyCollisionEvent(Event):
                 for enemy in self.enemies:
                     enemy.kill()
 
+class GameOverEvent(Event):
+    def __init__(self, state, screen):
+        super().__init__("GAME_OVER")
+        self.state = state
+        self.screen = screen
+
+    def handle(self):
+        self.screen.fill()
+        msg = "Game Over"
+        score = f"Score: {self.state.score}"
+        self.screen.print_message("Game Over", self.screen.half_width - 4*len(msg), self.screen.half_height)
+        self.screen.print_message(score, self.screen.half_width - 3*len(score), self.screen.half_height + 40)
+        pygame.display.flip()
+        time.sleep(5)
+        self.state.keep_running = False
+
 
 class EventHandler:
     def __init__(self, enemies, players, state, screen):
@@ -145,10 +162,14 @@ class EventHandler:
                 event = NotEvent(self.players.sprites()[0], in_superposition)
             elif e.type == HADAMARD:
                 print("HADAMARD")
+                self.screen.add_message("HADAMARD", 0, self.screen.half_height)
                 event = HadamardEvent(self.players, self.enemies, self.state)
             elif e.type == PLAYER_ENEMY_COLLISION:
                 print("PLAYER_ENEMY_COLLISION")
                 event = PlayerEnemyCollisionEvent(self.players, self.enemies, self.state)
+            elif e.type == GAME_OVER:
+                print("GAME_OVER")
+                event = GameOverEvent(self.state, self.screen)
             else:
                 continue
 

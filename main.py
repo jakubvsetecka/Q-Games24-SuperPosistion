@@ -8,7 +8,7 @@ import time
 from modules.player import Player
 from modules.enemy import Enemy
 from modules.screenHandler import ScreenHandler
-from modules.eventHandler import EventHandler, ADDENEMY, NOT, HADAMARD, PLAYER_ENEMY_COLLISION
+from modules.eventHandler import EventHandler, ADDENEMY, NOT, HADAMARD, PLAYER_ENEMY_COLLISION, GAME_OVER
 from modules.state import State
 
 #===================================================================================================
@@ -22,8 +22,8 @@ PLAYER_COLOR = (255, 255, 255) # white color
 BACKGROUND_COLOR=(255, 182, 193) # pink color
 
 CREATING_ENEMY_TIME_INTERVAL = 250 # later we can set it to different values if we wish
-NOT_TIME_INTERVAL = random.randint(500, 1000) * 100000
-HADAMARD_TIME_INTERVAL = random.randint(500, 1000) * 3
+NOT_TIME_INTERVAL = random.randint(500, 1000) * 5
+HADAMARD_TIME_INTERVAL = random.randint(500, 1000) * 10
 
 #===================================================================================================
 
@@ -53,9 +53,7 @@ def main():
     eventHandler.set_timer(NOT, NOT_TIME_INTERVAL)
     eventHandler.set_timer(HADAMARD, HADAMARD_TIME_INTERVAL)
 
-
-    running = True
-    while running:
+    while state.keep_running:
 
         eventHandler.handle_events()
         all_sprites.add(*enemies, players)
@@ -63,7 +61,7 @@ def main():
         screen.fill()
 
         pressed_keys = pygame.key.get_pressed()
-        if pressed_keys[K_ESCAPE]: running = False
+        if pressed_keys[K_ESCAPE]: state.keep_running = False
 
         all_sprites.update(pressed_keys)
 
@@ -71,6 +69,10 @@ def main():
         for player in players:
             if pygame.sprite.spritecollideany(player, enemies):
                 pygame.event.post(pygame.event.Event(PLAYER_ENEMY_COLLISION))
+
+        # Game Over detection
+        if state.game_over:
+            pygame.event.post(pygame.event.Event(GAME_OVER))
 
         for entity in all_sprites:
             if entity != screen:

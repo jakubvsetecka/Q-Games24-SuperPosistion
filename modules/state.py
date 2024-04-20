@@ -15,3 +15,5 @@ class State:
         self.swap_state = SwapState.NO_SWAP
         self.lives = 3
         self.score = 0
+        self.game_over = False
+        self.keep_running = True

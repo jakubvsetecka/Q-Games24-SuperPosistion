@@ -17,6 +17,7 @@ class ScreenHandler(pygame.sprite.Sprite):
         self.left = 0
         self.right = width
         self.half_height = height // 2
+        self.half_width = width // 2
         self.background_color = background_color
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
