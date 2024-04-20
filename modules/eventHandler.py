@@ -57,12 +57,15 @@ class HadamardEvent(Event):
                 enemy.exit_superposition()
 
             for player in self.players:
-                player.exit_superposition()
+                if player.original:
+                    player.exit_superposition()
+                else:
+                    player.kill()
         else:                                   # Going into superposition
-            new_player = self.players.sprites()[0]
-            new_player = copy.copy(self.players.sprites()[0])
-            new_player.flip()
-            self.players.add(new_player)
+            if self.players.sprites():  # Ensure there is at least one player
+                new_player = self.players.sprites()[0].clone()
+                new_player.flip()
+                self.players.add(new_player)
 
             for player in self.players:
                 player.enter_superposition()

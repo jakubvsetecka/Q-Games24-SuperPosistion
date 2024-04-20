@@ -17,6 +17,7 @@ class Player(pygame.sprite.Sprite):
         self.surf = pygame.Surface((75, 25))
         self.surf.fill(color)
         self.rect = self.surf.get_rect()
+        self.color = color
 
         self.rect.x = initial_x
         self.rect.y = initial_y
@@ -53,6 +54,11 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= self.bottomBoundary:
             self.rect.bottom = self.bottomBoundary
 
+    def clone(self):
+        new_player = Player(self.rect.x, self.rect.y, self.topBoundary, self.bottomBoundary, self.leftBoundary, self.rightBoundary, self.state, self.color, self.speed, False)
+        new_player.surf = self.surf.copy()
+        return new_player
+
     def flip(self):
         if self.topBoundary == 0:
             self.rect.y = self.rect.y + self.bottomBoundary
@@ -70,12 +76,11 @@ class Player(pygame.sprite.Sprite):
         self.speed = self.original_speed
 
     def flip(self):
-        if not self.state.superposition_state == SuperpositionState.SUPERPOSITION:
-            if self.topBoundary == 0:
-                self.rect.y = self.rect.y + self.bottomBoundary
-                self.topBoundary = self.bottomBoundary
-                self.bottomBoundary = self.bottomBoundary * 2
-            else:
-                self.rect.y = self.rect.y - self.topBoundary
-                self.topBoundary = 0
-                self.bottomBoundary = self.bottomBoundary // 2
+        if self.topBoundary == 0:
+            self.rect.y = self.rect.y + self.bottomBoundary
+            self.topBoundary = self.bottomBoundary
+            self.bottomBoundary = self.bottomBoundary * 2
+        else:
+            self.rect.y = self.rect.y - self.topBoundary
+            self.topBoundary = 0
+            self.bottomBoundary = self.bottomBoundary // 2
