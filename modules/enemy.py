@@ -46,9 +46,9 @@ class Enemy(pygame.sprite.Sprite):
             if pressed_keys[K_DOWN] or pressed_keys[K_s]:
                 self.rect.move_ip(0, self.speed)
             # Keep player on the screen
-            if self.rect.top <= 0:
+            if self.rect.bottom <= 0:
                 self.rect.y = self.screen_height - self.rect.height
-            elif self.rect.bottom >= self.screen_height:
+            elif self.rect.top >= self.screen_height:
                 self.rect.y = 0
         if self.rect.right < 0:
             self.kill()
