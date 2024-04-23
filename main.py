@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import (
-    K_ESCAPE
+    K_ESCAPE,
+    K_SPACE
 )
 import random
 import time
@@ -8,8 +9,9 @@ import time
 from modules.player import Player
 from modules.enemy import Enemy
 from modules.screenHandler import ScreenHandler
-from modules.eventHandler import EventHandler, ADDENEMY, NOT, HADAMARD, PLAYER_ENEMY_COLLISION, GAME_OVER
+from modules.eventHandler import *
 from modules.state import State
+from modules.bullet import Bullet # type: ignore
 
 #===================================================================================================
 
@@ -40,11 +42,14 @@ def main():
     # Set enemies
     enemies = pygame.sprite.Group()
 
+    # Set bullets
+    bullets = pygame.sprite.Group()
+
     all_sprites = pygame.sprite.Group()
-    all_sprites.add(players, enemies, screen)
+    all_sprites.add(players, enemies, bullets, screen)
 
     # Add events
-    eventHandler = EventHandler(enemies= enemies, players= players, state= state, screen= screen)
+    eventHandler = EventHandler(enemies= enemies, players= players, bullets= bullets, state= state, screen= screen)
     eventHandler.add_event(ADDENEMY)
     eventHandler.add_event(NOT)
     eventHandler.add_event(HADAMARD)
@@ -54,14 +59,19 @@ def main():
     eventHandler.set_timer(HADAMARD, HADAMARD_TIME_INTERVAL)
 
     while state.keep_running:
-
-        eventHandler.handle_events()
-        all_sprites.add(*enemies, players)
-
-        screen.fill()
+        state.score += 1
 
         pressed_keys = pygame.key.get_pressed()
         if pressed_keys[K_ESCAPE]: state.keep_running = False
+        if pressed_keys[K_SPACE]: pygame.event.post(pygame.event.Event(ADD_BULLET))
+
+        print(len(bullets))
+
+        eventHandler.handle_events()
+        all_sprites.add(*enemies, players, bullets)
+
+        screen.fill()
+
 
         all_sprites.update(pressed_keys)
 

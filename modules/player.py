@@ -10,6 +10,7 @@ from pygame.locals import (
 )
 import pygame
 from modules.state import SuperpositionState
+from modules.bullet import Bullet # type: ignore
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, initial_x, initial_y, tB, bB, lB, rB, state, color = (255, 255, 255), speed = 5, original = True):
@@ -84,3 +85,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y = self.rect.y - self.topBoundary
             self.topBoundary = 0
             self.bottomBoundary = self.bottomBoundary // 2
+
+    def shoot(self, bullets):
+        bullet = Bullet(self.rect.x + 75, self.rect.y + 12.5, self.state, self.color, boundary = self.rightBoundary)
+        bullets.add(bullet)

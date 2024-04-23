@@ -11,6 +11,7 @@ NOT = pygame.USEREVENT + 2
 HADAMARD = pygame.USEREVENT + 3
 PLAYER_ENEMY_COLLISION = pygame.USEREVENT + 4
 GAME_OVER = pygame.USEREVENT + 5
+ADD_BULLET = pygame.USEREVENT + 6
 
 class Event:
     def __init__(self, event_type):
@@ -18,6 +19,18 @@ class Event:
 
     def handle(self):
         pass
+
+class AddBulletEvent(Event):
+    def __init__(self, bullets, players, state, screen):
+        super().__init__("ADDBULLET")
+        self.bullets = bullets
+        self.players = players
+        self.state = state
+        self.screen = screen
+
+    def handle(self):
+        for player in self.players:
+            player.shoot(self.bullets)
 
 class AddEnemyEvent(Event):
     def __init__(self, enemies, state, screen_width, screen_height):
@@ -126,11 +139,12 @@ class GameOverEvent(Event):
 
 
 class EventHandler:
-    def __init__(self, enemies, players, state, screen):
+    def __init__(self, enemies, players, bullets, state, screen):
         self.event_list = []
         self.state = state
         self.enemies = enemies
         self.players = players
+        self.bullets = bullets
         self.screen = screen
         self.top = screen.top
         self.bot = screen.bot
@@ -170,6 +184,9 @@ class EventHandler:
             elif e.type == GAME_OVER:
                 print("GAME_OVER")
                 event = GameOverEvent(self.state, self.screen)
+            elif e.type == ADD_BULLET:
+                print("ADD_BULLET")
+                event = AddBulletEvent(self.bullets, self.players, self.state, self.screen)
             else:
                 continue
 
